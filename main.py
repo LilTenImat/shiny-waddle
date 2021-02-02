@@ -4,7 +4,10 @@ import os
 from PyQt5.QtWidgets import QWidget, QMessageBox, QApplication, QMainWindow, QLabel, QGridLayout, QWidget, QCheckBox, QSystemTrayIcon,\
     QSpacerItem, QSizePolicy, QMenu, QAction, QStyle, qApp, QPushButton
 from PyQt5.QtCore import QSize, QCoreApplication
-from PyQt5.QtMultimedia import QSo
+from intiligance import Worker
+
+worker = Worker()
+# from PyQt5.QtMultimedia import QSo
 
 import design
 
@@ -39,6 +42,7 @@ class Application(QMainWindow, design.Ui_MainWindow):
         else:
             self.pushButton_7.setText(_translate("MainWindow", "Inactive"))
             self.pushButton_7.setStyleSheet("background-color: rgb(224, 27, 36);\n""color: rgb(255, 255, 255);")
+        worker.on_command()
     
     def saveSettings(self):
         settings = {}
