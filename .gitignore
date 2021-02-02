@@ -1,3 +1,5 @@
 nn.py
 exp.ipynb
 logs/*
+data.csv
+labeled.csv

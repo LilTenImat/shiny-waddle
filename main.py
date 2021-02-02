@@ -43,6 +43,7 @@ class Application(QMainWindow, design.Ui_MainWindow):
             self.pushButton_7.setText(_translate("MainWindow", "Inactive"))
             self.pushButton_7.setStyleSheet("background-color: rgb(224, 27, 36);\n""color: rgb(255, 255, 255);")
         worker.on_command()
+        print(1)
     
     def saveSettings(self):
         settings = {}
