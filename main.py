@@ -1,13 +1,15 @@
 import sys
 import json
 import os
+from time import sleep 
 from PyQt5.QtWidgets import QWidget, QMessageBox, QApplication, QMainWindow, QLabel, QGridLayout, QWidget, QCheckBox, QSystemTrayIcon,\
     QSpacerItem, QSizePolicy, QMenu, QAction, QStyle, qApp, QPushButton
 from PyQt5.QtCore import QSize, QCoreApplication
 from intiligance import Worker
 
 worker = Worker()
-# from PyQt5.QtMultimedia import QSo
+
+
 
 import design
 
@@ -15,6 +17,7 @@ class Application(QMainWindow, design.Ui_MainWindow):
     check_box = None
     tray_icon = None
     active = False
+    text = ''
 
     def __init__(self):
         super().__init__()
@@ -32,19 +35,14 @@ class Application(QMainWindow, design.Ui_MainWindow):
             self.saveSettings()
 
     def switchActive(self):
-        self.active = not (self.active)
+        self.text += "<h1 style='color: magenta;'>This is head 1!</h1>"
         _translate = QCoreApplication.translate
-        if self.pushButton_7.text() == "Inactive":
-            # self.sounds['mic_on'].play()
-            self.show()
-            self.pushButton_7.setText(_translate("MainWindow", "Active"))
-            self.pushButton_7.setStyleSheet("background-color: rgb(0, 255, 0);\n""color: rgb(255, 255, 255);")
-        else:
-            self.pushButton_7.setText(_translate("MainWindow", "Inactive"))
-            self.pushButton_7.setStyleSheet("background-color: rgb(224, 27, 36);\n""color: rgb(255, 255, 255);")
-        worker.on_command()
-        print(1)
-    
+        if self.pushButton_7.text() == "Push":
+            # self.active = not (self.active)
+            self.textBrowser.setText(self.text)
+            # self.pushButton_7.setText(_translate("MainWindow", "Speak"))
+            worker.on_command()
+
     def saveSettings(self):
         settings = {}
         settings['cb1'] = self.checkBox.isChecked()
@@ -96,7 +94,7 @@ class Application(QMainWindow, design.Ui_MainWindow):
                 QSystemTrayIcon.Information,
                 2000
             )
-        else:
+        elif self.checkBox_2.isChecked():
             reply = QMessageBox.question(self, 'Quit',
                 "Are you sure to quit?", QMessageBox.Yes |
                 QMessageBox.No, QMessageBox.No)
@@ -105,10 +103,9 @@ class Application(QMainWindow, design.Ui_MainWindow):
                 event.accept()
             else:
                 event.ignore()
+        else:
+            event.accept()
     
-    def applySettings(self):
-        pass
-
 def main():
     app = QApplication(sys.argv) 
     window = Application() 
