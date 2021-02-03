@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './form.ui'
+# Form implementation generated from reading ui file './config/form.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #
@@ -26,14 +26,12 @@ class Ui_MainWindow(object):
         self.tab.setObjectName("tab")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.tab)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.textEdit = QtWidgets.QTextEdit(self.tab)
-        self.textEdit.setObjectName("textEdit")
-        self.verticalLayout_3.addWidget(self.textEdit)
+        self.textBrowser = QtWidgets.QTextBrowser(self.tab)
+        self.textBrowser.setObjectName("textBrowser")
+        self.verticalLayout_3.addWidget(self.textBrowser)
         self.pushButton_7 = QtWidgets.QPushButton(self.tab)
         self.pushButton_7.setMaximumSize(QtCore.QSize(95, 16777215))
-        self.pushButton_7.setStyleSheet("background-color: rgb(224, 27, 36);\n"
-"\n"
-"color: rgb(255, 255, 255);")
+        self.pushButton_7.setStyleSheet("")
         self.pushButton_7.setFlat(False)
         self.pushButton_7.setObjectName("pushButton_7")
         self.verticalLayout_3.addWidget(self.pushButton_7, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignBottom)
@@ -44,9 +42,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.comboBox = QtWidgets.QComboBox(self.tab_2)
         self.comboBox.setObjectName("comboBox")
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
         self.verticalLayout_2.addWidget(self.comboBox)
         self.checkBox = QtWidgets.QCheckBox(self.tab_2)
         self.checkBox.setObjectName("checkBox")
@@ -67,19 +62,16 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.pushButton_7.setText(_translate("MainWindow", "Inactive"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Tab 1"))
-        self.comboBox.setItemText(0, _translate("MainWindow", "item1"))
-        self.comboBox.setItemText(1, _translate("MainWindow", "item2"))
-        self.comboBox.setItemText(2, _translate("MainWindow", "item3"))
+        self.pushButton_7.setText(_translate("MainWindow", "Push"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Main"))
         self.checkBox.setText(_translate("MainWindow", "Hide to tray"))
         self.checkBox_2.setText(_translate("MainWindow", "CheckBox"))
         self.checkBox_3.setText(_translate("MainWindow", "CheckBox"))
         self.checkBox_4.setText(_translate("MainWindow", "CheckBox"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Tab 2"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Settings"))

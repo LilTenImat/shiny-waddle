@@ -35,13 +35,13 @@ class Application(QMainWindow, design.Ui_MainWindow):
             self.saveSettings()
 
     def switchActive(self):
-        self.text += "<h1 style='color: magenta;'>This is head 1!</h1>"
+        self.show()
         _translate = QCoreApplication.translate
         if self.pushButton_7.text() == "Push":
             # self.active = not (self.active)
+            self.pushButton_7.setText(_translate("MainWindow", "Speak"))
+            self.text += 'This is returned string'; worker.on_command()
             self.textBrowser.setText(self.text)
-            # self.pushButton_7.setText(_translate("MainWindow", "Speak"))
-            worker.on_command()
 
     def saveSettings(self):
         settings = {}
@@ -63,25 +63,34 @@ class Application(QMainWindow, design.Ui_MainWindow):
     def initTrayIcon(self):
         self.tray_icon = QSystemTrayIcon(self)
         self.tray_icon.setIcon(self.style().standardIcon(QStyle.SP_ComputerIcon))
-        show_action = QAction("Show", self)
+        # show_action = QAction("Show", self)
         quit_action = QAction("Exit", self)
         hide_action = QAction("Hide", self)
-        show_action.triggered.connect(self.show)
+        # show_action.triggered.connect(self.show)
         hide_action.triggered.connect(self.hide)
         quit_action.triggered.connect(qApp.quit)
         tray_menu = QMenu()
         # tray_menu = QPushButton()
-        tray_menu.addAction(show_action)
+        # tray_menu.addAction(show_action)
         tray_menu.addAction(hide_action)
         tray_menu.addAction(quit_action)
         # tray_menu.clicked.connect(self.switchActive)
         self.tray_icon.setContextMenu(tray_menu)
+        self.tray_icon.activated.connect(self.switchActive)
         self.tray_icon.show()
     
     def initMicList(self):
         _translate = QCoreApplication.translate
         self.comboBox.addItem("")
         self.comboBox.setItemText(0, _translate("MainWindow", ""))
+
+    def onTrayIconActivated(self, reason):
+        print("onTrayIconActivated:", reason)
+        if reason == QSystemTrayIcon.Trigger:
+            self.disambiguateTimer.start(qApp.doubleClickInterval())
+        elif reason == QSystemTrayIcon.DoubleClick:
+            self.disambiguateTimer.stop()
+            print("Tray icon double clicked")
 
     def closeEvent(self, event):
         self.saveSettings()
@@ -94,15 +103,15 @@ class Application(QMainWindow, design.Ui_MainWindow):
                 QSystemTrayIcon.Information,
                 2000
             )
-        elif self.checkBox_2.isChecked():
-            reply = QMessageBox.question(self, 'Quit',
-                "Are you sure to quit?", QMessageBox.Yes |
-                QMessageBox.No, QMessageBox.No)
+        # elif self.checkBox_2.isChecked():
+        #     reply = QMessageBox.question(self, 'Quit',
+        #         "Are you sure to quit?", QMessageBox.Yes |
+        #         QMessageBox.No, QMessageBox.No)
 
-            if reply == QMessageBox.Yes:
-                event.accept()
-            else:
-                event.ignore()
+        #     if reply == QMessageBox.Yes:
+        #         event.accept()
+        #     else:
+        #         event.ignore()
         else:
             event.accept()
     

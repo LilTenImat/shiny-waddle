@@ -3,3 +3,5 @@ exp.ipynb
 logs/*.log
 data.csv
 labeled.csv
+config/form.ui
+ui2py.sh
