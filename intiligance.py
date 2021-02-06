@@ -10,8 +10,7 @@ from logger import get_commands_logger, get_ml_logger
 mic = speech_recog.Microphone()
 recog = speech_recog.Recognizer()
 stemmer = RussianStemmer(False)
-solver = load(open('config/finalized_model.sav', 'rb'))
-tokinizer = load(open('config/tokenizer.sav', 'rb'))
+solver = load(open(r'config/RFC.sav','rb'))
 
 comm_logger = get_commands_logger('commands_logger')
 ml_logger = get_ml_logger('ml_logger')
@@ -27,7 +26,12 @@ def shutdown():
     os.system('shutdown -h now 2>>logs/functions_errors.log')
     comm_logger.info("Shutdowning")
 
-Labels2Commands = {0: open_explorer, 1: open_browser, 2: shutdown}
+def symbol():
+    print('mnogo')
+
+
+
+Labels2Commands = {0: open_explorer, 1: shutdown, 2: open_browser, 3: symbol}
 
 class Worker():
     def __init__(self):
@@ -46,8 +50,14 @@ class Worker():
                 print('Stemming...')
                 stemmed_text = stemmer.stem(text)
                 print(stemmed_text)
-                normalized = normalize(tokinizer.texts_to_matrix(stemmed_text))
-                command = solver.predict(normalized)[0]
-                Labels2Commands[command]()
+                command = solver.predict([stemmed_text])[0]
+                probabilities = solver.predict_proba([stemmed_text])
+                print(probabilities)
+                if probabilities[0][command] > 0.5:
+                    Labels2Commands[command]()
+                    return text
+                else:
+                    return ''
             except Exception as e:
                 print("Error: " + str(e))
+                return e
