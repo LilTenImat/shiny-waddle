@@ -20,7 +20,7 @@ os.environ["RESULT"] = ""
 class CommandHandler(QtCore.QObject):
     running = False
     finished = QtCore.pyqtSignal(str)
-    
+
     def run(self):
         res = worker.on_command()
         self.finished.emit(res)
@@ -38,7 +38,7 @@ class Application(QMainWindow, design.Ui_MainWindow):
         self.initTrayIcon()
         self.initMicList()
         self.setWindowIcon(QtGui.QIcon('./assets/images/icon.ico'))
-        
+
 
         self.thread = QtCore.QThread()
         self.commandHandler.moveToThread(self.thread)
@@ -50,9 +50,8 @@ class Application(QMainWindow, design.Ui_MainWindow):
             self.dropSettings()
         else:
             self.saveSettings()
-       
 
-<<<<<<< HEAD
+
     @QtCore.pyqtSlot(str)
     def updateText(self, string):
         html = f'''
@@ -63,7 +62,6 @@ class Application(QMainWindow, design.Ui_MainWindow):
                 </div>
                 '''
         self.textBrowser.append(html)
-=======
     def switchActive(self):
         self.show()
         _translate = QCoreApplication.translate
@@ -72,7 +70,6 @@ class Application(QMainWindow, design.Ui_MainWindow):
             # self.pushButton_7.setText(_translate("MainWindow", "Speak"))
             self.text += 'This is returned string'; worker.on_command()
             self.textBrowser.setText(self.text)
->>>>>>> intilegence
 
     def saveSettings(self):
         settings = {}
@@ -157,4 +154,3 @@ def main():
 if __name__ == '__main__':
     main()
     threading._shutdown()
-

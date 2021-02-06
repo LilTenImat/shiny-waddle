@@ -60,4 +60,4 @@ class Worker():
                     return ''
             except Exception as e:
                 print("Error: " + str(e))
-                return e
+                return 'err'
