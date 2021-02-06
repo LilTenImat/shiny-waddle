@@ -39,7 +39,7 @@ class Application(QMainWindow, design.Ui_MainWindow):
         _translate = QCoreApplication.translate
         if self.pushButton_7.text() == "Push":
             # self.active = not (self.active)
-            self.pushButton_7.setText(_translate("MainWindow", "Speak"))
+            # self.pushButton_7.setText(_translate("MainWindow", "Speak"))
             self.text += 'This is returned string'; worker.on_command()
             self.textBrowser.setText(self.text)
 
