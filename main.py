@@ -96,10 +96,13 @@ class Application(QMainWindow, design.Ui_MainWindow):
         show_action = QAction("Show", self)
         quit_action = QAction("Exit", self)
         hide_action = QAction("Hide", self)
+        activate_action = QAction("Activate", self)
         show_action.triggered.connect(self.show)
         hide_action.triggered.connect(self.hide)
         quit_action.triggered.connect(self.quit)
+        activate_action.triggered.connect(lambda: self.onTrayIconActivated(3))
         tray_menu = QMenu()
+        tray_menu.addAction(activate_action)
         tray_menu.addAction(show_action)
         tray_menu.addAction(hide_action)
         tray_menu.addAction(quit_action)
@@ -117,7 +120,6 @@ class Application(QMainWindow, design.Ui_MainWindow):
             self.tabWidget.setCurrentIndex(0)
             self.activateWindow()
             self.show()
-        if reason == 2:
             self.pushButton_7.click()
 
     def closeEvent(self, event):
