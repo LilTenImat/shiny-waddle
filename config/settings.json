@@ -1,1 +1,7 @@
-{"cb1": true, "cb2": false, "cb3": false, "cb4": false}
+{
+    "cb1": true,
+    "cb2": false,
+    "cb3": false,
+    "cb4": false,
+    "owm_api_key":  "6da131307b6bba9bca303b6da27263df"
+}
