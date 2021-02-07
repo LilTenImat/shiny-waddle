@@ -2,7 +2,6 @@ import design
 import sys
 import json
 import os
-# import concurrent.futures
 from time import sleep
 from PyQt5.QtWidgets import QWidget, QMessageBox, QApplication, QMainWindow, QLabel, QGridLayout, QWidget, QCheckBox, QSystemTrayIcon,\
     QSpacerItem, QSizePolicy, QMenu, QAction, QStyle, qApp, QPushButton
@@ -19,11 +18,12 @@ os.environ["RESULT"] = ""
 
 class CommandHandler(QtCore.QObject):
     running = False
-    finished = QtCore.pyqtSignal(str)
+    finished = QtCore.pyqtSignal(str, str)
 
-    def run(self):
-        res = worker.on_command()
-        self.finished.emit(res)
+    def run(self, text=None):
+
+        res = worker.on_command(text)
+        self.finished.emit(res, "user")
 
 class Application(QMainWindow, design.Ui_MainWindow):
     check_box = None
@@ -37,7 +37,7 @@ class Application(QMainWindow, design.Ui_MainWindow):
         self.setupUi(self)
         self.initTrayIcon()
         self.initMicList()
-        self.setWindowIcon(QtGui.QIcon('./assets/images/icon.ico'))
+        self.setWindowIcon(QtGui.QIcon('./assets/images/icon.png'))
 
 
         self.thread = QtCore.QThread()
@@ -46,22 +46,37 @@ class Application(QMainWindow, design.Ui_MainWindow):
         self.commandHandler.finished.connect(self.updateText)
         self.thread.start()
         self.pushButton_7.clicked.connect(self.commandHandler.run)
+        self.pushButton_7.setIconSize(QSize(64, 32))
+
+        self.lineEdit.returnPressed.connect(self.commandHandler.run, text=self.lineEdit.text())
+
         if os.path.exists('settings.json'):
             self.dropSettings()
         else:
             self.saveSettings()
 
 
-    @QtCore.pyqtSlot(str)
-    def updateText(self, string):
-        html = f'''
-                <div style="text-align:center;">
-                    <div style="width:50%; background-color:#E0E0E2; border-radius:5px;">
-                        <p>{string}</p>
+    @QtCore.pyqtSlot(str, str)
+    def updateText(self, string, f):
+        if f == "user":
+            html = f'''
+                    <div style="text-align:center;">
+                        <div style="width:50%; background-color:#E0E0E2; border:000; border-radius:5px;">
+                            <p>{string}</p>
+                        </div>
                     </div>
-                </div>
-                '''
+                    '''
+        elif f == "ai":
+            html = f'''
+                    <div style="text-align:center;">
+                        <div style="width:50%; background-color:#494993; border:000; border-radius:5px;">
+                            <p>{string}</p>
+                        </div>
+                    </div>
+                    '''
+        
         self.textBrowser.append(html)
+
     def switchActive(self):
         self.show()
         _translate = QCoreApplication.translate
@@ -90,20 +105,20 @@ class Application(QMainWindow, design.Ui_MainWindow):
 
     def initTrayIcon(self):
         self.tray_icon = QSystemTrayIcon(self)
-        self.tray_icon.setIcon(QtGui.QIcon('./assets/images/icon.ico'))
+        self.tray_icon.setIcon(QtGui.QIcon('./assets/images/icon.png'))
         show_action = QAction("Show", self)
         quit_action = QAction("Exit", self)
         hide_action = QAction("Hide", self)
         show_action.triggered.connect(self.show)
         hide_action.triggered.connect(self.hide)
-        quit_action.triggered.connect(qApp.quit)
+        quit_action.triggered.connect(self.quit)
         tray_menu = QMenu()
         tray_menu.addAction(show_action)
         tray_menu.addAction(hide_action)
         tray_menu.addAction(quit_action)
         self.tray_icon.setContextMenu(tray_menu)
-        self.tray_icon.activated.connect(self.show)
-        # self.tray_icon.activated.connect(self.commandHandler.run)
+        self.tray_icon.activated.connect(self.onTrayIconActivated)
+        # self.tray_icon.activated.connect(self.pushButton_7.click)
         self.tray_icon.show()
 
     def initMicList(self):
@@ -112,24 +127,26 @@ class Application(QMainWindow, design.Ui_MainWindow):
         self.comboBox.setItemText(0, _translate("MainWindow", ""))
 
     def onTrayIconActivated(self, reason):
-        print("onTrayIconActivated:", reason)
-        if reason == QSystemTrayIcon.Trigger:
-            self.disambiguateTimer.start(qApp.doubleClickInterval())
-        elif reason == QSystemTrayIcon.DoubleClick:
-            self.disambiguateTimer.stop()
-            print("Tray icon double clicked")
+        # print("onTrayIconActivated:", reason)
+        if reason == 3:
+            self.activateWindow()
+            self.show()
+        if reason == 2:
+            self.pushButton_7.click()
+            
 
     def closeEvent(self, event):
         self.saveSettings()
         if self.checkBox.isChecked():
             event.ignore()
             self.hide()
-            self.tray_icon.showMessage(
-                "Tray Program",
-                "Application was minimized to Tray",
-                QSystemTrayIcon.Information,
-                2000
-            )
+            if self.checkBox_2.isChecked():
+                self.tray_icon.showMessage(
+                    "Shiny waddle",
+                    "Application was minimized to Tray! \nDouble click to activate",
+                    QSystemTrayIcon.Information,
+                    2000
+                )
         # elif self.checkBox_2.isChecked():
         #     reply = QMessageBox.question(self, 'Quit',
         #         "Are you sure to quit?", QMessageBox.Yes |
@@ -140,11 +157,14 @@ class Application(QMainWindow, design.Ui_MainWindow):
         #     else:
         #         event.ignore()
         else:
+            self.thread.exit()
             event.accept()
 
+    def quit(self):
+        self.thread.exit()
+        qApp.quit()
 
 def main():
-    global window
     app = QApplication(sys.argv)
     window = Application()
     window.show()
