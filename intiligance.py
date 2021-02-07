@@ -36,7 +36,23 @@ Labels2Commands = {0: open_explorer, 1: shutdown, 2: open_browser, 3: symbol}
 class Worker():
     def __init__(self):
         pass
-    def on_command(self):
+    def on_command(self, text=None):
+        if text:
+            try:
+                print('Stemming...')
+                stemmed_text = stemmer.stem(text)
+                print(stemmed_text)
+                command = solver.predict([stemmed_text])[0]
+                probabilities = solver.predict_proba([stemmed_text])
+                print(probabilities)
+                if probabilities[0][command] > 0.5:
+                    Labels2Commands[command]()
+                    return text
+                else:
+                    return text
+            except Exception as e:
+                print("Error: " + str(e))
+                return 'err'
         with mic as audio_file:
             print("Speak Please")
 
@@ -57,7 +73,7 @@ class Worker():
                     Labels2Commands[command]()
                     return text
                 else:
-                    return ''
+                    return text
             except Exception as e:
                 print("Error: " + str(e))
                 return 'err'
