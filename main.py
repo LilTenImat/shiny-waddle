@@ -3,8 +3,7 @@ import sys
 import json
 import os
 from time import sleep
-from PyQt5.QtWidgets import QWidget, QMessageBox, QApplication, QMainWindow, QLabel, QGridLayout, QWidget, QCheckBox, QSystemTrayIcon,\
-    QSpacerItem, QSizePolicy, QMenu, QAction, QStyle, qApp, QPushButton
+from PyQt5.QtWidgets import QWidget, QMessageBox, QApplication, QMainWindow, QLabel, QGridLayout, QWidget, QCheckBox, QSystemTrayIcon, QSpacerItem, QSizePolicy, QMenu, QAction, QStyle, qApp, QPushButton
 from PyQt5.QtCore import QSize, QCoreApplication
 from PyQt5 import QtGui
 import PyQt5.QtCore as QtCore
@@ -13,8 +12,6 @@ import threading
 
 worker = Worker()
 
-os.environ["WORKING"] = 'False'
-os.environ["RESULT"] = ""
 
 class CommandHandler(QtCore.QObject):
     running = False
@@ -25,12 +22,11 @@ class CommandHandler(QtCore.QObject):
         res = worker.on_command(text)
         self.finished.emit(res, "user")
 
+
 class Application(QMainWindow, design.Ui_MainWindow):
     check_box = None
     tray_icon = None
-    active = False
     commandHandler = CommandHandler()
-    text = ''
 
     def __init__(self):
         super().__init__()
@@ -39,22 +35,22 @@ class Application(QMainWindow, design.Ui_MainWindow):
         self.initMicList()
         self.setWindowIcon(QtGui.QIcon('./assets/images/icon.png'))
 
-
         self.thread = QtCore.QThread()
         self.commandHandler.moveToThread(self.thread)
-        # self.thread.started.connect(self.commandHandler.run)
         self.commandHandler.finished.connect(self.updateText)
         self.thread.start()
         self.pushButton_7.clicked.connect(self.commandHandler.run)
         self.pushButton_7.setIconSize(QSize(64, 32))
 
-        self.lineEdit.returnPressed.connect(self.commandHandler.run, text=self.lineEdit.text())
+        self.lineEdit.returnPressed.connect(
+            lambda: self.commandHandler.run(self.lineEdit.text()))
+        self.lineEdit.returnPressed.connect(self.lineEdit.clear)
 
+        self.tabWidget.setCurrentIndex(0)
         if os.path.exists('settings.json'):
             self.dropSettings()
         else:
             self.saveSettings()
-
 
     @QtCore.pyqtSlot(str, str)
     def updateText(self, string, f):
@@ -74,17 +70,8 @@ class Application(QMainWindow, design.Ui_MainWindow):
                         </div>
                     </div>
                     '''
-        
-        self.textBrowser.append(html)
 
-    def switchActive(self):
-        self.show()
-        _translate = QCoreApplication.translate
-        if self.pushButton_7.text() == "Push":
-            # self.active = not (self.active)
-            # self.pushButton_7.setText(_translate("MainWindow", "Speak"))
-            self.text += 'This is returned string'; worker.on_command()
-            self.textBrowser.setText(self.text)
+        self.textBrowser.append(html)
 
     def saveSettings(self):
         settings = {}
@@ -118,7 +105,6 @@ class Application(QMainWindow, design.Ui_MainWindow):
         tray_menu.addAction(quit_action)
         self.tray_icon.setContextMenu(tray_menu)
         self.tray_icon.activated.connect(self.onTrayIconActivated)
-        # self.tray_icon.activated.connect(self.pushButton_7.click)
         self.tray_icon.show()
 
     def initMicList(self):
@@ -127,13 +113,12 @@ class Application(QMainWindow, design.Ui_MainWindow):
         self.comboBox.setItemText(0, _translate("MainWindow", ""))
 
     def onTrayIconActivated(self, reason):
-        # print("onTrayIconActivated:", reason)
         if reason == 3:
+            self.tabWidget.setCurrentIndex(0)
             self.activateWindow()
             self.show()
         if reason == 2:
             self.pushButton_7.click()
-            
 
     def closeEvent(self, event):
         self.saveSettings()
@@ -163,6 +148,7 @@ class Application(QMainWindow, design.Ui_MainWindow):
     def quit(self):
         self.thread.exit()
         qApp.quit()
+
 
 def main():
     app = QApplication(sys.argv)
