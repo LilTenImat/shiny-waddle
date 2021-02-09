@@ -58,14 +58,14 @@ class Application(QMainWindow, design.Ui_MainWindow):
 
     @QtCore.pyqtSlot(int, str)
     def updateText(self, f, string):
-        style = 
+        style = ''
         html = '<div style="%s"><p>%s</p></div>'
         if f == -2:
             self.textBrowser.append(html % (style, "Some error :("))
         elif f == 4:
-            self.textBrowser.append(html % "Weather")
+            self.textBrowser.append(html % (style,"Weather"))
         else:
-            self.textBrowser.append(html % string)
+            self.textBrowser.append(html % (style, string))
 
 
     def saveSettings(self):
