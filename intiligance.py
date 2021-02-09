@@ -4,37 +4,48 @@ import wave
 import requests
 import json
 import speech_recognition as speech_recog
+from pandas import read_csv
+from numpy import argmax
 from nltk.stem.snowball import RussianStemmer
 from pickle import load
 from sklearn.preprocessing import normalize
+from tensorflow.keras.preprocessing import sequence, text
+from tensorflow.keras.models import  load_model
 from logger import get_commands_logger, get_ml_logger
-from bs4 import BeautifulSoup
 
 PATH = os.getcwd()
+MAX_LEN = 8
+def get_tokenizer():
+    csv = read_csv(PATH + '/assets/csv/names.csv')
+    train = csv['text']
+    token = text.Tokenizer(num_words=None, oov_token='холодильник')
+    token.fit_on_texts(list(train))
+    return token
 
+tokenizer = get_tokenizer()
 mic = speech_recog.Microphone()
 recog = speech_recog.Recognizer()
 stemmer = RussianStemmer(False)
-solver = load(open(r'config/RFC.sav','rb'))
+solver = load(open(PATH + r'/assets/models/RFC.sav','rb'))
 
 comm_logger = get_commands_logger('commands_logger')
 ml_logger = get_ml_logger('ml_logger')
-def open_browser():
+def open_browser(*args):
     os.system('xdg-open http:// 2>>logs/functions_errors.log')
     comm_logger.info("Browser opened")
     return (2, 'Открываю браузер')
 
-def open_explorer():
+def open_explorer(*args):
     os.system('xdg-open . 2>>logs/functions_errors.log')
     comm_logger.info("Explorer opened")
     return (0,'Проводник')
 
-def shutdown():
+def shutdown(*args):
     os.system('shutdown -h now 2>>logs/functions_errors.log')
     comm_logger.info("Shutdowning")
     return (1,'Выключение')
 
-def symbol():
+def symbol(*args):
     return (3,'mnogo')
 
 def weather():
@@ -46,10 +57,28 @@ def weather():
     return (4,requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={city},ru&appid={api_key}').text)
 
 def open_terminal():
-    os.system('gnome-terminal')
-    return (5,'term opened')
+    if os.environ['XDG_CURRENT_DESKTOP'] == 'GNOME':
+        os.system('gnome-terminal')
+        return (5,'term opened')
+    else:
+        return (5, 'idk your de')
 
-Labels2Commands = {0: open_explorer, 1: shutdown, 2: open_browser, 3: symbol, 4: weather, 5: open_terminal}
+def new_name(*args):
+    txt = args[0]
+    print('deb')
+    model = load_model(PATH + '/assets/models/name_predictor/')
+    seq_text = tokenizer.texts_to_sequences([txt])
+    padded_text = sequence.pad_sequences(seq_text)
+    predict = model.predict(padded_text)[0]
+    print(predict)
+    if max(predict) > 0.4:
+        print(argmax(predict))
+        return (6,txt[argmax(predict)])
+    else:
+        return (6, 'try again')
+
+
+Labels2Commands = {0: open_explorer, 1: shutdown, 2: open_browser, 3: symbol, 4: weather, 5: open_terminal, 6: new_name}
 
 class Worker():
     def __init__(self):
@@ -64,9 +93,9 @@ class Worker():
                 print(stemmed_text)
                 command = solver.predict([stemmed_text])[0]
                 probabilities = solver.predict_proba([stemmed_text])
-                print(probabilities)
+                print(probabilities, command)
                 if probabilities[0][command] > 0.5:
-                    return Labels2Commands[command]()
+                    return Labels2Commands[command](text)
                 else:
                     return (-1, text)
             except Exception as e:
