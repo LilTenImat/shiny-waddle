@@ -48,7 +48,6 @@ class Application(QMainWindow, design.Ui_MainWindow):
         self.lineEdit.returnPressed.connect(
             lambda: self.commandHandler.run(self.lineEdit.text()))
         self.lineEdit.returnPressed.connect(self.lineEdit.clear)
-
         self.tabWidget.setCurrentIndex(0)
 
         if os.path.exists('./config/settings.json'):
