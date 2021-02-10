@@ -12,3 +12,5 @@ tfhub
 config/ruvec
 elmo.ipynb
 aaaaa.py
+.gitignore
+experiments

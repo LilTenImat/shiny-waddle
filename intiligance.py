@@ -8,6 +8,7 @@ from commands import Labels2Commands
 
 PATH = os.getcwd()
 os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
 mic = speech_recog.Microphone()
 recog = speech_recog.Recognizer()
@@ -30,7 +31,7 @@ class Worker():
                 command = solver.predict([stemmed_text])[0]
                 probabilities = solver.predict_proba([stemmed_text])
                 print(probabilities, command)
-                if probabilities[0][command] > 0.5:
+                if probabilities[0][command] > 0.4:
                     return Labels2Commands[command](text)
                 else:
                     return (-1, text)
@@ -53,8 +54,8 @@ class Worker():
                 command = solver.predict([stemmed_text])[0]
                 probabilities = solver.predict_proba([stemmed_text])
                 print(probabilities)
-                if probabilities[0][command] > 0.5:
-                    return Labels2Commands[command]()
+                if probabilities[0][command] > 0.4:
+                    return Labels2Commands[command](text)
                 else:
                     return (-1, text)
             except Exception as e:
