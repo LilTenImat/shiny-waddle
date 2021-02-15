@@ -14,3 +14,4 @@ elmo.ipynb
 aaaaa.py
 .gitignore
 experiments
+*.ipynb

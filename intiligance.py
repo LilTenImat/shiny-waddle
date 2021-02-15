@@ -2,36 +2,36 @@ import os
 import speech_recognition as speech_recog
 from nltk.stem.snowball import RussianStemmer
 from pickle import load
-from tensorflow.keras.preprocessing import sequence, text
-from logger import get_commands_logger, get_ml_logger
+from logger import get_ml_logger
 from commands import Labels2Commands
+from utils import prepare_texts
 
 PATH = os.getcwd()
 os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 mic = speech_recog.Microphone()
 recog = speech_recog.Recognizer()
 stemmer = RussianStemmer(False)
-solver = load(open(PATH + r'/assets/models/RFC.sav','rb'))
+solver = load(open(PATH + r'/assets/models/svc.sav', 'rb'))
 
 ml_logger = get_ml_logger('ml_logger')
+
 
 class Worker():
     def __init__(self):
         pass
-    
+
     @staticmethod
     def on_command(text=None):
         if text:
             try:
-                print('Stemming...')
-                stemmed_text = stemmer.stem(text)
-                print(stemmed_text)
-                command = solver.predict([stemmed_text])[0]
-                probabilities = solver.predict_proba([stemmed_text])
+                print(text)
+                stemmed_text = prepare_texts([text])
+                command = solver.predict(stemmed_text)
+                probabilities = solver.predict_proba(stemmed_text)
                 print(probabilities, command)
-                if probabilities[0][command] > 0.4:
+                if probabilities[0][command] < 1:
                     return Labels2Commands[command](text)
                 else:
                     return (-1, text)
@@ -49,12 +49,12 @@ class Worker():
             try:
                 text = recog.recognize_google(audio, language='ru-RU')
                 print('Stemming...')
-                stemmed_text = stemmer.stem(text)
+                stemmed_text = prepare_texts([text])
                 print(stemmed_text)
                 command = solver.predict([stemmed_text])[0]
                 probabilities = solver.predict_proba([stemmed_text])
                 print(probabilities)
-                if probabilities[0][command] > 0.4:
+                if probabilities[0][command] < 1:
                     return Labels2Commands[command](text)
                 else:
                     return (-1, text)
